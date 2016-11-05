@@ -8,14 +8,21 @@
 ;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.test.check.properties
-  (:require [clojure.test.check.generators :as gen]))
+  (:require [clojure.test.check.generators :as gen]
+            [clojure.test.check.results :as results]))
+
+(defrecord ErrorResult [ex]
+  results/Result
+  (passing? [_] false)
+  (result-data [_] {:ex ex}))
 
 (defn- apply-gen
   [function]
   (fn [args]
     (let [result (try (apply function args)
                    #?(:clj (catch java.lang.ThreadDeath t (throw t)))
-                   (catch #?(:clj Throwable :cljs :default) t t))]
+                   (catch #?(:clj Throwable :cljs :default) ex
+                     (->ErrorResult ex)))]
       {:result result
        :function function
        :args args})))

@@ -113,7 +113,8 @@
                   (let [result
                         (tc/quick-check
                           1000 (prop/for-all* [gen/int] exception-thrower))]
-                    [(:result result) (get-in result [:shrunk :smallest])])))))
+                    [(:ex (:result-data result))
+                     (get-in result [:shrunk :smallest])])))))
 
 ;; Count and concat work as expected
 ;; ---------------------------------------------------------------------------
